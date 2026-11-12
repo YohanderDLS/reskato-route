@@ -3,6 +3,7 @@ import {
   drawFlower,
   drawRescuer,
   drawRock,
+  drawTerrainSprite,
   drawTree,
   getTile,
   mulberry32,
@@ -147,6 +148,9 @@ export class BoardRenderer {
       for (let c = 0; c < cols; c++) {
         hash ^= row[c] * (c + 3) + r * 17 + 1;
         hash = Math.imul(hash, 16777619);
+        const terrain = state.terrain?.[r]?.[c];
+        hash ^= terrain === "water" ? 2 : terrain === "bush" ? 3 : terrain === "fence" ? 4 : 1;
+        hash = Math.imul(hash, 16777619);
       }
     }
     return `${this.viewW}x${this.viewH}:${x},${y},${cell}:${rows}x${cols}:${hash >>> 0}:${this.decorKey}`;
@@ -194,14 +198,21 @@ export class BoardRenderer {
         if (value <= 0) {
           kind = "wall";
           variant = (r * 3 + c * 5) % 3;
-        } else if (value > 1) {
-          kind = "rubble";
-          variant = (r + c) % 2;
         } else {
           kind = "grass";
           variant = grassVariant(r, c);
         }
         sctx.drawImage(getTile(kind, cell, variant), px, py, cell, cell);
+      }
+    }
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const terrain = state.terrain?.[r]?.[c];
+        if (cells[r][c] <= 1 || !["water", "bush", "fence"].includes(terrain)) continue;
+        const centerX = ox + c * cell + cell / 2;
+        const centerY = oy + r * cell + cell / 2;
+        drawTerrainSprite(sctx, terrain, centerX, centerY, cell);
       }
     }
 
@@ -229,7 +240,7 @@ export class BoardRenderer {
     sctx.lineWidth = 1;
     sctx.strokeRect(ox + 0.5, oy + 0.5, boardW - 1, boardH - 1);
 
-    // Costo de los escombros
+    // Costo del terreno
     if (cell >= 20) {
       sctx.font = `${Math.max(7, Math.round(cell * 0.3))}px "Press Start 2P", monospace`;
       sctx.textAlign = "center";
@@ -239,7 +250,8 @@ export class BoardRenderer {
           const value = cells[r][c];
           if (value <= 1) continue;
           const px = ox + c * cell + cell / 2;
-          const py = oy + r * cell + cell / 2;
+          const terrain = state.terrain?.[r]?.[c];
+          const py = oy + r * cell + (["water", "bush", "fence"].includes(terrain) ? cell * 0.84 : cell / 2);
           sctx.fillStyle = "rgba(20, 6, 6, 0.9)";
           sctx.fillText(String(value), px + 1, py + 1);
           sctx.fillStyle = "#ffe3a3";

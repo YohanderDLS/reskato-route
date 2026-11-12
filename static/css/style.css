@@ -174,32 +174,45 @@ output {
   gap: 6px;
 }
 
-.dot {
+.legend-block {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(26, 18, 10, 0.9);
   border-radius: 2px;
-  box-shadow: 0 0 6px currentColor;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.22), 0 2px 0 rgba(0, 0, 0, 0.45);
+  image-rendering: pixelated;
 }
 
-.dot-frontier {
-  background: var(--yellow);
-  color: rgba(245, 213, 71, 0.8);
+.legend-block-frontier {
+  background: linear-gradient(180deg, #ffe95b 0 45%, #d2a931 45% 100%);
 }
 
-.dot-closed {
-  background: var(--red);
-  color: rgba(229, 72, 77, 0.8);
+.legend-block-closed {
+  background: linear-gradient(180deg, #ed6868 0 45%, #a93237 45% 100%);
 }
 
-.dot-path {
-  background: var(--green);
-  color: rgba(111, 220, 127, 0.8);
+.legend-block-path {
+  background: linear-gradient(135deg, #a5f58c 0 35%, #55c96e 35% 70%, #348d50 70% 100%);
 }
 
-.dot-rubble {
-  background: #b4443c;
-  color: rgba(180, 68, 60, 0.6);
+.legend-block-water {
+  background:
+    linear-gradient(90deg, transparent 0 18%, #b9edf0 18% 32%, transparent 32% 100%),
+    linear-gradient(180deg, #60c6d6 0 45%, #287eaa 45% 100%);
+}
+
+.legend-block-bush {
+  background:
+    linear-gradient(90deg, transparent 0 25%, #b5d86d 25% 38%, transparent 38% 62%, #a0cb61 62% 76%, transparent 76%),
+    linear-gradient(180deg, #78a94a 0 48%, #456d32 48% 100%);
+}
+
+.legend-block-fence {
+  background:
+    linear-gradient(90deg, #4a2d18 0 15%, transparent 15% 43%, #4a2d18 43% 58%, transparent 58% 85%, #4a2d18 85%),
+    linear-gradient(180deg, #d19a57 0 42%, #8d592e 42% 60%, #d19a57 60% 100%);
 }
 
 /* ---------------------------------------------------------------- alert */
@@ -430,28 +443,13 @@ output {
   flex-direction: column;
   gap: 8px;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: 12px 12px 12px;
   background:
     repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.07) 0 1px, transparent 1px 34px),
     linear-gradient(180deg, #6b4526 0%, #55351d 22%, #4a2e1a 60%, #3a2314 100%);
   border-left: 4px solid #8a5a2b;
   box-shadow: inset 6px 0 0 rgba(255, 255, 255, 0.05), inset -6px 0 0 rgba(0, 0, 0, 0.28);
-  scrollbar-width: thin;
-  scrollbar-color: var(--wood-edge) #2a1a10;
-}
-
-.panel::-webkit-scrollbar {
-  width: 10px;
-}
-
-.panel::-webkit-scrollbar-track {
-  background: #2a1a10;
-}
-
-.panel::-webkit-scrollbar-thumb {
-  background: var(--wood-edge);
-  border: 2px solid #2a1a10;
 }
 
 .brand {
@@ -513,6 +511,14 @@ output {
   text-shadow: 0 1px 0 #2b1a10;
 }
 
+.section.controls-section > h2,
+.section.terrain-section > h2 {
+  font-family: var(--text-font);
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -523,6 +529,27 @@ output {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 5px;
+}
+
+.terrain-tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.terrain-tools .pixel-btn.tool {
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
+  text-align: center;
+  font-size: 5.5px;
+}
+
+.terrain-tools .pixel-btn.tool svg {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
 }
 
 /* ------------------------------------------------------------- buttons */
@@ -585,6 +612,13 @@ output {
   pointer-events: none;
 }
 
+.pixel-btn.tool span {
+  font-family: var(--text-font);
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
 .pixel-btn:hover {
   filter: brightness(1.06);
 }
@@ -633,6 +667,34 @@ output {
   font-size: 14px;
   line-height: 1.15;
   color: var(--cream-dim);
+}
+
+.terrain-cost {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+  font-family: var(--text-font);
+  font-size: 16px;
+  line-height: 1;
+  color: var(--cream);
+}
+
+.terrain-cost input {
+  width: 76px;
+  padding: 5px 6px;
+  background: #241509;
+  border: 2px solid var(--wood-edge);
+  border-radius: 4px;
+  color: var(--gold);
+  font-family: var(--text-font);
+  font-size: 16px;
+}
+
+.terrain-cost input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 /* -------------------------------------------------------------- ranges */
@@ -896,31 +958,6 @@ input[type="range"]::-moz-range-thumb {
   border-top: 1px dashed rgba(154, 102, 54, 0.45);
 }
 
-.legend-section {
-  display: none;
-}
-
-.legend-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px 8px;
-  padding: 2px 4px;
-  font-size: 15px;
-  color: var(--cream-dim);
-}
-
-.legend-grid span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-@media (min-height: 880px) {
-  .legend-section {
-    display: block;
-  }
-}
-
 /* ------------------------------------------------------- gesture cursor */
 
 .gesture-cursor {
@@ -1041,36 +1078,126 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Pantallas bajas: todo debe seguir cabiendo sin desplazarse. */
-@media (max-height: 762px) {
+@media (max-height: 920px) {
   .panel {
-    gap: 6px;
-    padding: 10px;
+    gap: 4px;
+    padding: 8px;
   }
 
   .section {
-    padding: 6px;
+    padding: 4px;
   }
 
   .section h2 {
-    margin-bottom: 4px;
+    margin-bottom: 3px;
+    font-size: 6px;
   }
 
   .brand {
-    padding: 4px 8px;
+    padding: 3px 6px;
   }
 
   .brand .compass {
-    flex-basis: 30px;
-    width: 30px;
-    height: 30px;
+    flex-basis: 26px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .brand h1 {
+    font-size: 8px;
   }
 
   .pixel-btn.wide {
-    margin-bottom: 5px;
+    padding: 5px;
+    margin-bottom: 3px;
+  }
+
+  .pixel-btn.tool {
+    padding: 5px;
+  }
+
+  .pixel-btn.tool svg {
+    flex-basis: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .terrain-tools .pixel-btn.tool {
+    gap: 2px;
+    padding: 4px 1px;
+  }
+
+  .terrain-tools .pixel-btn.tool svg {
+    flex-basis: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .terrain-cost {
+    margin-top: 4px;
+  }
+
+  .terrain-cost + .hint {
+    display: none;
+  }
+
+  .grid-3 .pixel-btn.action {
+    flex-direction: row;
+    gap: 3px;
+    padding: 5px 2px;
+    font-size: 5px;
+  }
+
+  .grid-3 .pixel-btn.action svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .toggles {
+    gap: 3px;
+    margin-top: 2px;
+  }
+
+  .switch {
+    flex-direction: row;
+    gap: 3px;
+    padding: 3px 2px;
+    font-size: 5px;
+  }
+
+  .switch span {
+    width: 24px;
+    height: 14px;
+  }
+
+  .switch span::after {
+    width: 8px;
+    height: 8px;
+  }
+
+  .switch input:checked + span::after {
+    transform: translateX(10px);
+  }
+
+  .controls-row {
+    gap: 6px;
+  }
+
+  .control label {
+    font-size: 5px;
+  }
+
+  .range-marks {
+    font-size: 10px;
   }
 
   .cam-status {
-    font-size: 12px;
+    margin-top: 2px;
+    font-size: 10px;
+  }
+
+  .cam-wrap {
+    aspect-ratio: 16 / 9;
   }
 
   .panel-foot {
@@ -1080,21 +1207,28 @@ input[type="range"]::-moz-range-thumb {
 
 @media (max-height: 680px) {
   .panel {
-    gap: 5px;
+    gap: 3px;
     padding: 8px;
   }
 
   .section {
-    padding: 5px;
+    padding: 4px;
   }
 
   .brand-tag {
     display: none;
   }
 
+  .terrain-tools .pixel-btn.tool {
+    flex-direction: row;
+    gap: 3px;
+    padding: 4px 2px;
+    text-align: left;
+  }
+
   .cam-wrap {
     aspect-ratio: auto;
-    height: clamp(120px, 27vh, 205px);
+    height: clamp(100px, 20vh, 135px);
   }
 
   .toggles {
@@ -1102,12 +1236,12 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .controls-row {
-    gap: 6px;
+    gap: 4px;
   }
 }
 
 /* Pantallas altas: la cámara aprovecha el espacio extra. */
-@media (min-height: 880px) {
+@media (min-height: 1020px) {
   .cam-wrap {
     aspect-ratio: auto;
     height: clamp(240px, 33vh, 360px);

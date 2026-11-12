@@ -35,7 +35,7 @@ La interfaz se controla con la mano frente a la webcam: **mano abierta = puntero
 | Grid configurable 10×10–25×25 | Slider + regeneración de mapa | `static/js/app.js` |
 | Muros / espacios libres | Matriz de costos (`0` = muro) | `app/core/grid.py` |
 | Generación manual | Herramientas Añadir / Borrar / Mover | `static/js/app.js` |
-| Generación automática | DFS aleatorio + trenzado + escombros | `app/core/maze.py` |
+| Generación automática | DFS aleatorio + trenzado + terrenos con costo | `app/core/maze.py` |
 | Fase de exploración visual | Eventos `open`/`close` animados | `app/core/astar.py`, `static/js/app.js` |
 | Ruta óptima en verde | Trazado con halo y flechas | `static/js/render.js` |
 | Movimiento animado del rescatista | Interpolación sobre la ruta | `static/js/app.js`, `render.js` |
@@ -61,17 +61,16 @@ La interfaz se controla con la mano frente a la webcam: **mano abierta = puntero
 
 ### 3.2 Matriz de costos
 
-La matriz `cells[R][C]` codifica el terreno y los obstáculos en un solo valor:
+La matriz de costos `cells[R][C]` describe el tránsito:
 
 | Valor | Significado | Transitable |
 |---|---|---|
-| `0` | Muro / escombro impenetrable | No |
+| `0` | Muro | No |
 | `1` | Pasto (costo normal) | Sí, costo 1 |
-| `3` | Escombro liviano | Sí, costo 3 |
-| `5` | Escombro pesado | Sí, costo 5 |
+| `2`–`99` | Charco, arbusto o valla con costo de paso elegido | Sí, costo indicado |
 
-Esta decisión permite que **el mismo dato describa topología y peso**, y que el
-algoritmo elija no el camino más *corto* sino el más **barato** (ver §5).
+La respuesta de `/api/maze` incluye además una matriz `terrain` con el tipo visual
+(`grass`, `wall`, `water`, `bush` o `fence`); A\* solo necesita los valores de `cells`.
 
 ### 3.3 Interfaz del grafo
 
@@ -190,7 +189,7 @@ animar el proceso sin recalcular nada en el cliente.
 
 | Algoritmo | Costo de búsqueda | ¿Óptimo? | Comentario |
 |---|---|---|---|
-| BFS | No usa pesos | Solo si todos los costos son iguales | Ignora los escombros |
+| BFS | No usa pesos | Solo si todos los costos son iguales | Ignora los costos de terreno |
 | Dijkstra | `O(E log V)` | Sí | Explora en todas las direcciones por igual |
 | **A\*** | `O(E log V)`, en la práctica mucho menor | **Sí** | Usa `h` para dirigir la búsqueda hacia la meta |
 | Greedy Best-First | Muy rápido | **No** | Solo usa `h`; puede elegir rutas caras |
@@ -212,17 +211,18 @@ Cada evento de la traza tiene la forma:
 - Sobre cada celda cerrada se dibuja `g(n)`: el costo acumulado desde el origen.
 
 Esto hace visible una propiedad clave de A\*: los nodos de una misma "banda" hacia
-la meta comparten valores de `f`, y los desvíos hacia escombros disparan `g`.
+la meta comparten valores de `f`, y los desvíos hacia terrenos caros aumentan `g`.
 
 ---
 
 ## 5. Terreno con costo: rutas baratas, no solo cortas
 
-Los escombros (`3` y `5`) son transitables pero caros. Ejemplo:
+Los charcos, arbustos y vallas son transitables; en mapas aleatorios tienen costo `3` o
+`5`, y el usuario puede asignarles un costo de `2` a `99`. Ejemplo:
 
 ```
 Ruta A: 12 pasos por pasto            → costo 12
-Ruta B:  8 pasos, 3 de ellos escombro → costo 8 + 3·2 = 14
+Ruta B:  8 pasos, 3 de ellos con costo 3 → costo 8 + 3·2 = 14
 ```
 
 A\* elige la **A**, aunque sea más larga en celdas. Si se desactiva la casilla
@@ -243,8 +243,9 @@ la ruta más corta en pasos. Esto permite demostrar en vivo la diferencia entre
    vecino abierto) y, con probabilidad 0.32, se abre un muro hacia otra zona
    transitable. Esto crea **ciclos y rutas alternativas**, indispensables para
    comparar costos.
-3. **Escombros.** Un 9 % de los muros que tocan un pasillo se convierten en
-   escombros de costo 3 (60 %) o 5 (40 %). Nunca se colocan sobre el origen ni la meta.
+3. **Terreno con costo.** Un 9 % de los muros que tocan un pasillo se convierten en
+   charcos, arbustos o vallas de costo 3 (60 %) o 5 (40 %). El tipo se elige al azar y nunca
+   se coloca sobre el origen ni la meta.
 4. **Selección de la meta.** Se calcula el **BFS de distancias** desde el origen y se
    elige la celda de costo normal más lejana dentro del cuadrante inferior derecho
    (para que el recorrido sea largo y visualmente atractivo).
@@ -326,7 +327,8 @@ Respuesta:
 {
   "rows": 16,
   "cols": 16,
-  "cells": [[0,0,0],[0,1,1]],
+  "cells": [[0,0,0],[0,1,3]],
+  "terrain": [["wall","wall","wall"],["wall","grass","fence"]],
   "start": [1,1],
   "goal": [9,11]
 }
@@ -436,7 +438,7 @@ al servidor Python ni a Internet.
   dibujan una sola vez en un canvas fuera de pantalla; cada frame solo hace un
   `drawImage`. La caché se invalida cuando cambian las celdas, el tamaño o el layout.
 - **`devicePixelRatio` limitado a 2** para no gastar memoria en pantallas 4K.
-- **Tiles pre-renderizados** por tamaño y variante (pasto, muro, escombro).
+- **Tiles pre-renderizados** para pasto y muros; charcos, arbustos y vallas se dibujan como sprites pixel art en la escena estática.
 - **Animación por tiempo** (`dt`), no por número de frames: la velocidad es
   independiente del hardware.
 - A 25×25 el tablero completo (625 celdas) se mantiene fluido.

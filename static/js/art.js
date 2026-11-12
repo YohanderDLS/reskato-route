@@ -223,6 +223,56 @@ const CAT = {
   ],
 };
 
+const TERRAIN_SPRITES = {
+  water: {
+    colors: { b: "#174a6c", w: "#79c6d1" },
+    rows: [
+      "....bbbb....",
+      "..bbbbbbbb..",
+      ".bwwbbbbwwb.",
+      "bwwbbbbbbwwb",
+      "bbwwbbbbwwbb",
+      ".bbbbbbbbbb.",
+      "..bbbbbbbb..",
+      "....bbbb....",
+    ],
+  },
+  bush: {
+    colors: { g: "#3d6c32", h: "#70a747", l: "#94bf5a", d: "#244b28", t: "#5b3b22" },
+    rows: [
+      "....gggg....",
+      "..gggggggg..",
+      ".gggllggggg.",
+      "gggggggggggg",
+      "gggddggddggg",
+      "gggggggggggg",
+      ".gggggggggg.",
+      "..gggggggg..",
+      "...gggggg...",
+      ".....tt.....",
+      "....tttt....",
+      "....tttt....",
+    ],
+  },
+  fence: {
+    colors: { d: "#57351d", m: "#9b6530", l: "#c28b4b", t: "#704624" },
+    rows: [
+      "..dd....dd..",
+      "..dd....dd..",
+      "..dd....dd..",
+      "ddmmmmddmmdd",
+      "ddllllddmm.d",
+      "..dd....dd..",
+      "..dd....dd..",
+      "ddmmmm....dd",
+      "ddmm.....ddd",
+      "..dd....dd..",
+      "..dd....dd..",
+      "..dd....dd..",
+    ],
+  },
+};
+
 function drawPixelArt(ctx, def, x, y, pixel, flip = false, outline = null) {
   const rows = def.rows;
   const h = rows.length;
@@ -264,6 +314,15 @@ function drawPixelArt(ctx, def, x, y, pixel, flip = false, outline = null) {
     }
   }
   ctx.restore();
+}
+
+export function drawTerrainSprite(ctx, type, cx, cy, size) {
+  const sprite = TERRAIN_SPRITES[type];
+  if (!sprite) return;
+  const pixel = (size * 0.72) / Math.max(sprite.rows[0].length, sprite.rows.length);
+  const width = sprite.rows[0].length * pixel;
+  const height = sprite.rows.length * pixel;
+  drawPixelArt(ctx, sprite, cx - width / 2, cy - height / 2 - size * 0.08, pixel, false, "#20100a");
 }
 
 export function drawRescuer(ctx, cx, cy, size, flip = false, bob = 0) {

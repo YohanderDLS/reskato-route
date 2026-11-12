@@ -1,10 +1,10 @@
-"""Generador de laberintos con ramas, callejones y escombros con costo.
+"""Generador de laberintos con ramas, callejones y terrenos con costo.
 
 1. Se parte de un tablero lleno de muros.
 2. Se excava un laberinto "perfecto" con backtracking aleatorio (DFS).
 3. Se "trenzan" algunos callejones sin salida para crear rutas alternativas
    (varios caminos entre dos puntos, ideal para comparar costos).
-4. Se convierten algunos muros en escombros transitables de costo 3 o 5.
+4. Se convierten algunos muros en charcos, arbustos o vallas transitables de costo 3 o 5.
 5. La meta se ubica en la celda transitable mas lejana del cuadrante inferior
    derecho, para que el recorrido sea visualmente interesante.
 """
@@ -27,6 +27,7 @@ class MazeBoard:
     rows: int
     cols: int
     cells: List[List[int]]
+    terrain: List[List[str]]
     start: Coord
     goal: Coord
 
@@ -87,8 +88,9 @@ def _braid(cells: List[List[int]], rng: random.Random, probability: float = 0.32
                 cells[wr][wc] = 1
 
 
-def _add_rubble(
+def _add_cost_terrain(
     cells: List[List[int]],
+    terrain: List[List[str]],
     rng: random.Random,
     probability: float,
     start: Coord,
@@ -100,7 +102,7 @@ def _add_rubble(
         for c in range(1, cols - 1):
             if cells[r][c] != 0 or (r, c) in protected or (r, c) == start:
                 continue
-            # Solo escombros que toquen un pasillo (se ven como derrumbes).
+            # Solo terrenos con costo que toquen un pasillo.
             touches_floor = any(
                 cells[r + dr][c + dc] > 0
                 for dr, dc in ((-1, 0), (0, 1), (1, 0), (0, -1))
@@ -109,6 +111,7 @@ def _add_rubble(
                 continue
             if rng.random() < probability:
                 cells[r][c] = 3 if rng.random() < 0.6 else 5
+                terrain[r][c] = rng.choice(("water", "bush", "fence"))
 
 
 def _distances(cells: List[List[int]], start: Coord) -> Dict[Coord, int]:
@@ -153,12 +156,15 @@ def generate(
 
     cells = _carve(rows, cols, rng)
     _braid(cells, rng)
+    terrain = [["grass" if value > 0 else "wall" for value in row] for row in cells]
     start = (1, 1)
     goal = _pick_goal(cells, start)
-    _add_rubble(cells, rng, rubble_probability, start, protected={goal})
+    _add_cost_terrain(cells, terrain, rng, rubble_probability, start, protected={goal})
 
     # Garantia final: origen y meta siempre transitables con costo normal.
     cells[start[0]][start[1]] = 1
     cells[goal[0]][goal[1]] = 1
+    terrain[start[0]][start[1]] = "grass"
+    terrain[goal[0]][goal[1]] = "grass"
 
-    return MazeBoard(rows=rows, cols=cols, cells=cells, start=start, goal=goal)
+    return MazeBoard(rows=rows, cols=cols, cells=cells, terrain=terrain, start=start, goal=goal)

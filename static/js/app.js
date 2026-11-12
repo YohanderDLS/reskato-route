@@ -1,5 +1,6 @@
 import { BoardRenderer } from "./render.js";
 import { GestureController } from "./gestures.js";
+import { SoundEffects } from "./audio.js";
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -40,6 +41,7 @@ const state = {
   rows: 16,
   cols: 16,
   cells: [],
+  terrain: [],
   start: [1, 1],
   goal: [1, 1],
   tool: "wall",
@@ -86,6 +88,7 @@ const els = {
   sizeOut: $("#sizeOut"),
   speedRange: $("#speedRange"),
   speedOut: $("#speedOut"),
+  terrainCost: $("#terrainCost"),
   chkDiagonal: $("#chkDiagonal"),
   chkWeighted: $("#chkWeighted"),
   chkGestures: $("#chkGestures"),
@@ -97,6 +100,7 @@ const els = {
 };
 
 const renderer = new BoardRenderer(els.board, els.stage);
+const sounds = new SoundEffects();
 
 /* ------------------------------------------------------------------- status */
 
@@ -159,6 +163,7 @@ function clearRun() {
   state.overlay.dim = 1;
   state.walker = { active: false, index: 0 };
   state.blocked = false;
+  sounds.stopExploring();
   hideAlert();
   els.victory.hidden = true;
   els.btnPause.disabled = true;
@@ -179,24 +184,45 @@ function applyTool(r, c) {
     if (inStart || inGoal) return false;
     if (state.cells[r][c] === 0) return false;
     state.cells[r][c] = 0;
+    state.terrain[r][c] = "grass";
     return true;
   }
   if (state.tool === "erase") {
-    if (state.cells[r][c] === 1) return false;
+    if (state.cells[r][c] === 1 && state.terrain[r][c] === "grass") return false;
     state.cells[r][c] = 1;
+    state.terrain[r][c] = "grass";
+    return true;
+  }
+  if (state.tool === "water" || state.tool === "bush" || state.tool === "fence") {
+    if (inStart || inGoal) return false;
+    if (!els.terrainCost.checkValidity()) {
+      state.painting = false;
+      els.terrainCost.reportValidity();
+      return false;
+    }
+    const cost = els.terrainCost.valueAsNumber;
+    if (state.cells[r][c] === cost && state.terrain[r][c] === state.tool) return false;
+    state.cells[r][c] = cost;
+    state.terrain[r][c] = state.tool;
     return true;
   }
   if (state.tool === "goal") {
     if (inStart) return false;
     if (state.goal[0] === r && state.goal[1] === c) return false;
-    if (state.cells[r][c] <= 0) state.cells[r][c] = 1;
+    if (state.cells[r][c] <= 0) {
+      state.cells[r][c] = 1;
+      state.terrain[r][c] = "grass";
+    }
     state.goal = [r, c];
     return true;
   }
   if (state.tool === "start") {
     if (inGoal) return false;
     if (state.start[0] === r && state.start[1] === c) return false;
-    if (state.cells[r][c] <= 0) state.cells[r][c] = 1;
+    if (state.cells[r][c] <= 0) {
+      state.cells[r][c] = 1;
+      state.terrain[r][c] = "grass";
+    }
     state.start = [r, c];
     return true;
   }
@@ -258,6 +284,7 @@ function pauseResume() {
   state.run.paused = !state.run.paused;
   els.btnPause.querySelector("span").textContent = state.run.paused ? "Reanudar" : "Pausar";
   if (state.run.paused) {
+    sounds.stopExploring();
     setStatus("PAUSADO");
     return;
   }
@@ -270,6 +297,7 @@ function pauseResume() {
   };
   const [text, kind] = labels[state.run.status] || ["EN CURSO", "busy"];
   setStatus(text, kind);
+  if (state.run.status === "exploring") sounds.startExploring();
 }
 
 async function execute() {
@@ -299,6 +327,7 @@ async function execute() {
     els.btnPause.disabled = false;
     els.btnPause.querySelector("span").textContent = "Pausar";
     setStatus("EXPLORANDO", "busy");
+    sounds.startExploring();
     updateStats();
   } catch (error) {
     setStatus("ERROR", "bad");
@@ -313,6 +342,13 @@ async function newMaze(rows = state.rows, cols = state.cols) {
     state.rows = board.rows;
     state.cols = board.cols;
     state.cells = board.cells;
+    state.terrain =
+      board.terrain ||
+      board.cells.map((row, r) =>
+        row.map((cost, c) =>
+          cost > 1 ? ["water", "bush", "fence"][(r * 31 + c * 17) % 3] : "grass",
+        ),
+      );
     state.start = board.start;
     state.goal = board.goal;
     state.hover = null;
@@ -371,6 +407,7 @@ function tick(dt) {
     }
     updateStats();
     if (run.index >= run.trace.length) {
+      sounds.stopExploring();
       if (run.blocked) {
         run.status = "blocked";
         finishRun();
@@ -396,18 +433,22 @@ function tick(dt) {
       run.status = "walking";
       state.walker = { active: true, index: 0 };
       setStatus("RESCATE EN CURSO", "busy");
+      sounds.pathFound();
     }
     return;
   }
 
   if (run.status === "walking") {
     const speed = SPEEDS[state.speed];
+    const previousTile = Math.floor(state.walker.index);
     state.walker.index += dt / speed.walk;
+    if (Math.floor(state.walker.index) > previousTile) sounds.step();
     const last = state.overlay.path.length - 1;
     if (state.walker.index >= last) {
       state.walker.index = last;
       run.status = "done";
       setStatus("COMPLETADO", "ok");
+      sounds.victory();
       showVictory(run);
       updateStats();
     }
@@ -431,6 +472,17 @@ document.querySelectorAll(".tool").forEach((button) => {
     button.classList.add("active");
     state.tool = button.dataset.mode;
   });
+});
+
+document.addEventListener("pointerdown", () => sounds.unlock(), { once: true });
+document.addEventListener("keydown", () => sounds.unlock(), { once: true });
+document.addEventListener("pointerover", (event) => {
+  const button = event.target.closest("button");
+  if (button && !button.contains(event.relatedTarget)) sounds.hover();
+});
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("button");
+  if (button && !button.disabled) sounds.click();
 });
 
 function setTool(mode) {

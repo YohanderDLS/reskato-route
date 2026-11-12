@@ -9,6 +9,7 @@ La interacción principal es **por gestos con la cámara web**:
 
 - 🖐️ **Mano abierta** → puntero flotante (hover).
 - ✊ **Puño cerrado** → clic (con anillo de progreso y anti-rebote).
+- Efectos de sonido discretos para botones, exploración, ruta, desplazamiento y rescate.
 
 > También incluye **modo ratón/teclado** como respaldo para probar sin cámara.
 
@@ -43,14 +44,16 @@ del usuario).
 
 ## Cómo se usa
 
-1. **Mapa aleatorio** genera un laberinto con ramas, callejones y escombros.
+1. **Mapa aleatorio** genera un laberinto con ramas, callejones, charcos, arbustos y vallas con costo.
 2. **Añadir / Borrar** permite editar muros arrastrando el puntero sobre el tablero.
 3. **Mover meta / Mover inicio** reubican a la mascota y al rescatista.
-4. El deslizador **Tamaño** va de **10×10** a **25×25**.
-5. **Ejecutar** corre A\*: las celdas en **amarillo** son la frontera de búsqueda,
+4. **Charco de agua / Arbusto / Valla de madera** permite pintar terrenos con costo
+   adicional; elige un costo entero entre **2** y **99** antes de pintar.
+5. El deslizador **Tamaño** va de **10×10** a **25×25**.
+6. **Ejecutar** corre A\*: las celdas en **amarillo** son la frontera de búsqueda,
    las **rojas** son las descartadas y la **verde** es la ruta óptima.
-6. El rescatista recorre la ruta hasta la mascota.
-7. Si encierras a la mascota, aparece la **alerta de bloqueo total**.
+7. El rescatista recorre la ruta hasta la mascota.
+8. Si encierras a la mascota, aparece la **alerta de bloqueo total**.
 
 ### Atajos
 
@@ -80,6 +83,7 @@ reskato-route/
 │  ├─ css/style.css        Estilo pixel-art (panel de madera)
 │  ├─ js/
 │  │  ├─ app.js            Estado, animación y eventos
+│  │  ├─ audio.js          Efectos de sonido generados en el navegador
 │  │  ├─ render.js         Renderizado del tablero
 │  │  ├─ art.js            Sprites y tiles dibujados por código
 │  │  └─ gestures.js       MediaPipe: mano abierta / puño

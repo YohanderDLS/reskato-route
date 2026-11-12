@@ -82,7 +82,7 @@ reskato-route/
 │  └─ core/
 │     ├─ grid.py              Matriz de costos y vecinos (grafo implícito)
 │     ├─ astar.py             A* con traza de eventos open/close
-│     ├─ maze.py              Generador DFS + trenzado + escombros + meta lejana
+│     ├─ maze.py              Generador DFS + trenzado + terrenos con costo + meta lejana
 │     └─ validator.py         BFS de conectividad (bloqueo total)
 ├─ static/
 │  ├─ index.html              Estructura del tablero y del panel
@@ -110,7 +110,7 @@ reskato-route/
 ## 5. Funcionalidad ya implementada
 
 - [x] Tablero de 10×10 a 25×25 (slider).
-- [x] Generación aleatoria de laberintos con ramas, ciclos y escombros.
+- [x] Generación aleatoria de laberintos con ramas, ciclos y terrenos con costo.
 - [x] Edición manual: **Añadir**, **Borrar**, **Mover meta**, **Mover inicio** (clic y arrastre).
 - [x] A\* en Python con traza (`open`/`close`, `g`, `h`, `f`).
 - [x] Animación de exploración y ruta óptima con halo, flechas y destellos.
@@ -208,8 +208,8 @@ C:\Users\Yohander Dls\AppData\Local\Temp\opencode\rtest\test.js
 - **MediaPipe**: modelo y WASM son locales. Si faltan archivos, falla el arranque de gestos. Carga en frío ~37 s.
 - **IDs y `window.__reskato`**: no renombrarlos; `app.js` y las pruebas dependen de ellos.
 - **Arquitectura**: el algoritmo debe seguir en Python. No mover A\* a JavaScript.
-- **Celdas**: `0` muro, `1` pasto, `3` y `5` escombros transitables con costo.
-- **HUD**: “Nodos” = celdas cerradas; el número en celdas rojas es `g`; los escombros muestran su costo.
+- **Celdas**: `0` muro, `1` pasto, `2`–`99` costo de charcos, arbustos o vallas transitables.
+- **HUD**: “Nodos” = celdas cerradas; el número en celdas rojas es `g`; los terrenos muestran su costo.
 - **`[hidden] { display: none !important; }`** es necesario para que alertas y victoria no aparezcan al cargar.
 - **Screenshots headless**: con `--virtual-time-budget` el canvas puede salir vacío. Usar Puppeteer esperando `#statStatus === "LISTO"` y luego capturar.
 - **PyPowerShell**: usar `npm.cmd`, no `npm.ps1`. No dejar `function` en lugar de `def` en Python.

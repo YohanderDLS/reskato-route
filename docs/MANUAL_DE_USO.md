@@ -43,16 +43,18 @@ run.bat
 - **Rescatista** (arriba a la izquierda): origen de la búsqueda.
 - **Mascota** (abajo a la derecha): meta, sobre un cojín rojo.
 - **Muros**: bloques de piedra oscuros.
-- **Escombros**: bloques rojizos con un número (`3` o `5`) = costo extra.
+- **Charcos, arbustos y vallas**: sprites pixel art con costo de paso (`3` o `5` en mapas aleatorios).
+- **Terreno con costo**: pinta charcos, arbustos o vallas y asigna un costo de `2` a `99`.
 - **HUD superior**: nodos expandidos, tamaño de la frontera, costo de la ruta y
   tiempo de cálculo del algoritmo.
-- **Leyenda inferior**: amarillo = frontera, rojo = descartado, verde = ruta óptima.
+- **Leyenda inferior**: amarillo = frontera, rojo = descartado, verde = ruta óptima; charco y arbusto muestran terrenos con costo.
 
 ### Panel (derecha)
 
 | Sección | Qué hace |
 |---|---|
 | **Controles** | Añadir muro, Borrar muro, Mover meta, Mover inicio |
+| **Terreno con costo** | Elige charco, arbusto o valla, indica su costo (2–99) y pinta las celdas |
 | **Acciones** | Ejecutar, Pausar/Reanudar, Reiniciar |
 | **Cámara** | Vista de la webcam con el esqueleto de la mano detectada |
 | **Ajustes** | Mapa aleatorio, tamaño (10–25), velocidad, diagonales, costos, gestos |
@@ -68,7 +70,13 @@ run.bat
 
 ### Herramienta Borrar
 1. Pulsa **Borrar** (o tecla `2`).
-2. Clic o arrastra sobre muros o escombros: vuelven a pasto.
+2. Clic o arrastra sobre muros, charcos, arbustos o vallas: vuelven a pasto.
+
+### Charcos, arbustos y vallas
+1. En **Terreno con costo**, escribe un costo de paso entero entre `2` y `99`.
+2. Selecciona **Charco de agua**, **Arbusto** o **Valla de madera**.
+3. Haz clic o arrastra sobre el tablero para pintar ese terreno con el costo elegido. Ese valor es el costo de entrar en la celda.
+4. Cada celda pintada conserva su costo; al cambiar el número, las siguientes celdas usarán el nuevo valor.
 
 ### Mover meta / inicio
 1. Pulsa **Mover meta** (`3`) o **Mover inicio** (`4`).
@@ -85,7 +93,7 @@ run.bat
 - **Mapa aleatorio**: crea un laberinto nuevo del tamaño actual.
 - **Tablero**: desliza entre **10×10** y **25×25**. Al soltar el control
   se genera un mapa nuevo con ese tamaño.
-- Cada mapa incluye ramas, callejones y escombros con costo.
+- Cada mapa incluye ramas, callejones, charcos, arbustos y vallas con costo.
 
 ---
 
@@ -179,15 +187,15 @@ Si encierras a la mascota con muros:
 - **Solución:** borra un muro para abrir un pasillo. La alerta desaparece y puedes
   volver a ejecutar.
 
-### Sin ruta por escombros
-Los escombros son transitables. Si el único camino pasa por escombros caros, A\*
+### Ruta con terrenos de costo
+Los charcos, arbustos y vallas son transitables. Si el camino pasa por terrenos caros, A\*
 lo usará igual, pero el costo total será mayor: es una buena forma de mostrar la
 diferencia entre “camino corto” y “camino barato”.
 
 ### Cambiar de modo de movimiento
 - **Diagonales** activado: el rescatista puede moverse en 8 direcciones (costo √2
   por diagonal). Cambia la heurística a octil.
-- **Costos** desactivado: los escombros cuestan 1 y el resultado es la ruta más
+- **Costos** desactivado: los terrenos con costo valen 1 y el resultado es la ruta más
   corta en pasos.
 
 ---

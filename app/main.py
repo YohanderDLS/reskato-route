@@ -53,8 +53,8 @@ class SolveRequest(BaseModel):
             if len(row) != cols:
                 raise ValueError("todas las filas deben tener el mismo largo")
             for value in row:
-                if not isinstance(value, int) or not 0 <= value <= 9:
-                    raise ValueError("cada celda debe ser un entero entre 0 y 9")
+                if not isinstance(value, int) or not 0 <= value <= 99:
+                    raise ValueError("cada celda debe ser un entero entre 0 y 99")
         return cells
 
     @field_validator("start", "goal")
@@ -84,6 +84,7 @@ def new_maze(payload: MazeRequest) -> dict:
         "rows": board.rows,
         "cols": board.cols,
         "cells": board.cells,
+        "terrain": board.terrain,
         "start": list(board.start),
         "goal": list(board.goal),
     }

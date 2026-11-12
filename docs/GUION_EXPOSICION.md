@@ -41,7 +41,8 @@ Incluye texto sugerido, acciones en pantalla y preguntas probables del profesor.
 > - El **peso** de la arista es el costo de entrar a la celda.
 >
 > La matriz del tablero guarda ese costo en un solo número: `0` significa muro
-> impenetrable, `1` pasto, y `3` o `5` escombros transitables pero caros.
+> impenetrable, `1` pasto, y los valores mayores representan el costo de pasar
+> por un charco, arbusto o valla. En los mapas aleatorios se asigna `3` o `5`.
 >
 > Trabajamos con un **grafo implícito**: no lo guardamos en memoria, lo generamos
 > bajo demanda. En el peor caso, 25 por 25 son 625 nodos y 2500 aristas, así que
@@ -113,7 +114,8 @@ Incluye texto sugerido, acciones en pantalla y preguntas probables del profesor.
 
 **Acción:** activar/desactivar **Costos** y volver a ejecutar.
 
-> “Los escombros cuestan 3 o 5. Con costos activados, A\* puede elegir un camino con
+> “Los charcos, arbustos y vallas cuestan 3 o 5 en mapas aleatorios y podemos asignarles un
+> costo personalizado. Con costos activados, A\* puede elegir un camino con
 > **más pasos pero menos costo**. Si desactivo costos, todos valen 1 y el resultado
 > pasa a ser la ruta más corta en pasos. Es la diferencia entre **camino mínimo** y
 > **costo mínimo**.”
@@ -196,8 +198,8 @@ Sí. Python, el modelo de MediaPipe, los binarios WASM y las fuentes están
 descargados localmente. Internet solo se usa en la primera instalación.
 
 **9. ¿Qué representa el número en las celdas rojas?**
-El costo acumulado `g` desde el origen. En los escombros, el número es su costo de
-terreno (3 o 5).
+El costo acumulado `g` desde el origen. En charcos, arbustos y vallas, el número es el
+costo de paso (3 o 5 en mapas aleatorios).
 
 **10. ¿Se puede mover la meta?**
 Sí, con la herramienta **Mover meta**; el sistema recalcula sobre el nuevo destino.

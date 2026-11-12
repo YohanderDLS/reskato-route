@@ -4,10 +4,9 @@ Cada celda es un nodo del grafo. Dos celdas son vecinas si comparten un lado
 (4-vecindad) o, opcionalmente, una esquina (8-vecindad). El valor de cada celda
 representa su costo de transito:
 
-    0  -> muro / escombro impenetrable
+    0  -> muro (impenetrable)
     1  -> pasto (costo normal)
-    3  -> escombro liviano (costo 3)
-    5  -> escombro pesado (costo 5)
+    >1 -> terreno con costo adicional; el numero es el costo de transito
 """
 
 from __future__ import annotations
