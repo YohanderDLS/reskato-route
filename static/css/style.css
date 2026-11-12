@@ -368,6 +368,11 @@ output {
   color: #d7f2d9;
 }
 
+.victory-card #victoryBtn {
+  width: fit-content;
+  margin: 0 auto;
+}
+
 .victory-spark {
   position: absolute;
   top: -18px;
@@ -503,20 +508,13 @@ output {
 
 .section h2 {
   margin: 0 0 6px;
-  font-family: var(--pixel-font);
-  font-size: 7px;
-  letter-spacing: 1.5px;
+  font-family: var(--text-font);
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 0.5px;
   color: var(--gold);
   text-align: center;
   text-shadow: 0 1px 0 #2b1a10;
-}
-
-.section.controls-section > h2,
-.section.terrain-section > h2 {
-  font-family: var(--text-font);
-  font-size: 16px;
-  line-height: 1;
-  letter-spacing: 0.5px;
 }
 
 .grid-2 {
@@ -543,7 +541,7 @@ output {
   gap: 3px;
   padding: 6px 2px;
   text-align: center;
-  font-size: 5.5px;
+  font-size: 14px;
 }
 
 .terrain-tools .pixel-btn.tool svg {
@@ -567,10 +565,10 @@ output {
   border-radius: 7px;
   box-shadow: 0 3px 0 #2b1a10, inset 0 2px 0 rgba(255, 255, 255, 0.55);
   color: #3a2314;
-  font-family: var(--pixel-font);
-  font-size: 6.5px;
-  line-height: 1.4;
-  letter-spacing: 0.3px;
+  font-family: var(--text-font);
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 0;
   cursor: pointer;
   transition: transform 0.06s steps(1), box-shadow 0.06s steps(1), filter 0.1s;
   user-select: none;
@@ -599,7 +597,7 @@ output {
 
 .pixel-btn.action {
   padding: 8px 3px 7px;
-  font-size: 6px;
+  font-size: 14px;
   gap: 3px;
 }
 
@@ -614,7 +612,7 @@ output {
 
 .pixel-btn.tool span {
   font-family: var(--text-font);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   letter-spacing: 0;
 }
@@ -653,7 +651,7 @@ output {
   flex-direction: row;
   gap: 7px;
   padding: 7px;
-  font-size: 7px;
+  font-size: 14px;
   margin-bottom: 7px;
 }
 
@@ -676,7 +674,7 @@ output {
   gap: 8px;
   margin-top: 9px;
   font-family: var(--text-font);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   color: var(--cream);
 }
@@ -689,7 +687,7 @@ output {
   border-radius: 4px;
   color: var(--gold);
   font-family: var(--text-font);
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .terrain-cost input:focus-visible {
@@ -716,16 +714,16 @@ output {
   justify-content: space-between;
   gap: 4px;
   margin-bottom: 4px;
-  font-family: var(--pixel-font);
-  font-size: 5.8px;
-  line-height: 1.5;
+  font-family: var(--text-font);
+  font-size: 13px;
+  line-height: 1;
   color: var(--cream);
 }
 
 .control output {
   color: var(--gold);
-  font-family: var(--pixel-font);
-  font-size: 6.5px;
+  font-family: var(--text-font);
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -789,9 +787,10 @@ input[type="range"]::-moz-range-thumb {
   background: rgba(20, 12, 6, 0.4);
   border: 2px solid rgba(154, 102, 54, 0.45);
   border-radius: 6px;
-  font-family: var(--pixel-font);
-  font-size: 6px;
-  letter-spacing: 0.2px;
+  font-family: var(--text-font);
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0;
   color: var(--cream);
   text-align: center;
   cursor: pointer;
@@ -930,7 +929,7 @@ input[type="range"]::-moz-range-thumb {
 
 .cam-status {
   margin: 4px 2px 0;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.15;
   color: var(--cream-dim);
   min-height: 0;
@@ -1090,7 +1089,7 @@ input[type="range"]::-moz-range-thumb {
 
   .section h2 {
     margin-bottom: 3px;
-    font-size: 6px;
+    font-size: 14px;
   }
 
   .brand {
@@ -1145,7 +1144,7 @@ input[type="range"]::-moz-range-thumb {
     flex-direction: row;
     gap: 3px;
     padding: 5px 2px;
-    font-size: 5px;
+    font-size: 14px;
   }
 
   .grid-3 .pixel-btn.action svg {
@@ -1162,7 +1161,7 @@ input[type="range"]::-moz-range-thumb {
     flex-direction: row;
     gap: 3px;
     padding: 3px 2px;
-    font-size: 5px;
+    font-size: 13px;
   }
 
   .switch span {
@@ -1184,16 +1183,16 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .control label {
-    font-size: 5px;
+    font-size: 13px;
   }
 
   .range-marks {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .cam-status {
     margin-top: 2px;
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .cam-wrap {
@@ -1207,7 +1206,7 @@ input[type="range"]::-moz-range-thumb {
 
 @media (max-height: 680px) {
   .panel {
-    gap: 3px;
+    gap: 2px;
     padding: 8px;
   }
 
